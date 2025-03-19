@@ -1,19 +1,31 @@
 import itch_scraper as itch
+import json
 
-url = "https://twoandahalfstudios.itch.io/a-date-with-death"
+# sample usage
 
-data = {}
-soup = itch.fetch_soup(url)
+# url = "https://twoandahalfstudios.itch.io/a-date-with-death"
 
-data["title"] = itch.get_title(soup)
-data["url"] = url
-data["logline"] = itch.get_logline(soup)
-rating = {}
-rating["aggregate rating"] = itch.get_aggregate_rating(soup)
-rating["rating count"] = itch.get_rating_count(soup)
-data["rating"] = rating
-data["tags"] = itch.get_tags(soup)
-data["description"] = itch.get_description(soup)
-data["comments"] = itch.get_comments(soup, url) 
+# json = itch.get_data(url)
+# itch.pretty_print_json(json)
 
-itch.pretty_print_json(data)
+# to scrape from the urls.txt
+print('Enter the path to your urls.txt file')
+txt_path = input()
+
+with open(txt_path, 'r') as file:
+  content = file.read()
+
+game_jsons = []
+
+lines = content.splitlines() # Splits into lines
+for line in lines:
+  url = line.strip() 
+  json_obj = itch.get_data(url)
+  game_jsons.append(json_obj)
+
+results = json.dumps(game_jsons, indent=4)
+ 
+# Writing to sample.json
+with open("top_rated_games.json", "w") as outfile:
+    outfile.write(results)
+

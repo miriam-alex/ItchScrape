@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import json
-from typing import List
+from typing import List, Dict
 
 # fetches HTML, returns BeautifulSoup object
 def fetch_soup(url: BeautifulSoup) -> BeautifulSoup:
@@ -84,7 +84,7 @@ def get_description(soup: BeautifulSoup) -> str:
 # count -> how many comments to scrape
 # recent -> scrapes the most recent `count`` comments
 
-def get_comments(soup: BeautifulSoup, url: str,  page_count: int = 2, recent: bool = True) -> List[str]:
+def get_comments(soup: BeautifulSoup, url: str,  page_count: int = 1, recent: bool = True) -> List[str]:
     """
     Gets the comments for the itch.io game specified in the URL.
 
@@ -99,6 +99,10 @@ def get_comments(soup: BeautifulSoup, url: str,  page_count: int = 2, recent: bo
     """
 
     comment_label = soup.find(class_="page_label")
+    if comment_label == None:
+       print(f"Game with {url} does not have a comment section")
+       return None
+
     comment_label_text = comment_label.get_text(" ")
     comment_count = re.findall(r"\d{1,3}(?:,\d{3})*", comment_label_text)[2]
     comment_count = int(comment_count.replace(',', ''))
@@ -112,12 +116,27 @@ def get_comments(soup: BeautifulSoup, url: str,  page_count: int = 2, recent: bo
         new_url = base_url + str((page-1) * 40)
       else:
         new_url = base_url + str(comment_count - page * 40)
-
-      print(f"\npage {page} - {new_url}\n")
-
+        
       comment_soup = fetch_soup(new_url)
       page_comments = comment_soup.find_all(class_="post_body user_formatted")
       comments += page_comments
       
     comments = list(map(lambda x: x.get_text(), comments))
     return comments
+
+def get_data(url : str) -> Dict:
+    soup = fetch_soup(url)
+    data = {}
+    data["title"] = get_title(soup)
+    data["url"] = url
+    data["logline"] = get_logline(soup)
+    rating = {}
+    rating["aggregate_rating"] = get_aggregate_rating(soup)
+    rating["rating_count"] = get_rating_count(soup)
+    data["rating"] = rating
+    data["tags"] = get_tags(soup)
+    data["description"] = get_description(soup)
+    data["recent_comments"] = get_comments(soup, url) 
+    data["oldest_comments"] = get_comments(soup, url, recent=False) 
+
+    return data

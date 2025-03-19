@@ -1,7 +1,9 @@
 .tsconfig
-top_rated_itch.html
-top_rated_urls.txt
-games.json
-old
 __pycache__
 .DS_Store
+
+old
+top_rated_itch.html
+urls_test.txt
+top_rated_games.json
+games.json
