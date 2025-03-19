@@ -100,7 +100,7 @@ def get_comments(soup: BeautifulSoup, url: str,  page_count: int = 1, recent: bo
 
     comment_label = soup.find(class_="page_label")
     if comment_label == None:
-       print(f"Game with {url} does not have a comment section")
+       # print(f"Game with {url} does not have a comment section")
        return None
 
     comment_label_text = comment_label.get_text(" ")
