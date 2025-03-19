@@ -4,7 +4,7 @@ from tqdm import tqdm
 
 # sample usage
 
-# url = "https://twoandahalfstudios.itch.io/a-date-with-death"
+# url = "https://frannym.itch.io/10questions"
 
 # json = itch.get_data(url)
 # itch.pretty_print_json(json)
@@ -25,7 +25,8 @@ lines = content.splitlines() # Splits into lines
 for line in tqdm(lines):
   url = line.strip() 
   json_obj = itch.get_data(url)
-  game_jsons.append(json_obj)
+  if json_obj:
+    game_jsons.append(json_obj)
 
 results = json.dumps(game_jsons, indent=4)
  

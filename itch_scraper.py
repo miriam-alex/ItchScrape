@@ -5,7 +5,7 @@ import json
 from typing import List, Dict
 
 # fetches HTML, returns BeautifulSoup object
-def fetch_soup(url: BeautifulSoup) -> BeautifulSoup:
+def fetch_soup(url: str) -> BeautifulSoup:
     try:
         response = requests.get(url)
         response.raise_for_status()  # Raise an error for bad responses (4xx and 5xx)
@@ -35,7 +35,7 @@ def pretty_print_json(data: str) -> None:
   pretty_json = json.dumps(data, indent=4)
   print(pretty_json)
 
-def get_application_json(soup: BeautifulSoup) -> str:
+def get_application_json(soup: BeautifulSoup) -> Dict:
   application_data = soup.find_all('script', type='application/ld+json')
   game_data = application_data[1]
   json_data = json.loads(game_data.get_text())
@@ -50,25 +50,25 @@ def get_tags(soup: BeautifulSoup) -> List[str]:
 
 def get_title(soup: BeautifulSoup) -> str:
   json_data = get_application_json(soup)
-  if not json_data["name"]:
+  if "name" not in json_data or not json_data["name"]:
      return None
   return json_data["name"]
 
 def get_aggregate_rating(soup: BeautifulSoup) -> float:
   json_data = get_application_json(soup)
-  if not json_data["aggregateRating"]:
+  if "aggregateRating" not in json_data or not json_data["aggregateRating"]:
      return None
   return float(json_data["aggregateRating"]["ratingValue"])
 
 def get_rating_count(soup: BeautifulSoup) -> int:
   json_data = get_application_json(soup)
-  if not json_data["aggregateRating"]:
+  if "aggregateRating" not in json_data or not json_data["aggregateRating"]:
      return None
   return int(json_data["aggregateRating"]["ratingCount"])
 
 def get_logline(soup: BeautifulSoup) -> str:
   json_data = get_application_json(soup)
-  if not json_data["description"]:
+  if "description" not in json_data or not json_data["description"]:
      return None
   return json_data["description"]
     
@@ -125,18 +125,23 @@ def get_comments(soup: BeautifulSoup, url: str,  page_count: int = 1, recent: bo
     return comments
 
 def get_data(url : str) -> Dict:
-    soup = fetch_soup(url)
+    
     data = {}
-    data["title"] = get_title(soup)
-    data["url"] = url
-    data["logline"] = get_logline(soup)
     rating = {}
-    rating["aggregate_rating"] = get_aggregate_rating(soup)
-    rating["rating_count"] = get_rating_count(soup)
-    data["rating"] = rating
-    data["tags"] = get_tags(soup)
-    data["description"] = get_description(soup)
-    data["recent_comments"] = get_comments(soup, url) 
-    data["oldest_comments"] = get_comments(soup, url, recent=False) 
+
+    try:
+      soup = fetch_soup(url)
+      data["title"] = get_title(soup)
+      data["url"] = url
+      data["logline"] = get_logline(soup)
+      rating["aggregate_rating"] = get_aggregate_rating(soup)
+      rating["rating_count"] = get_rating_count(soup)
+      data["rating"] = rating
+      data["tags"] = get_tags(soup)
+      data["description"] = get_description(soup)
+      data["recent_comments"] = get_comments(soup, url) 
+      data["oldest_comments"] = get_comments(soup, url, recent=False) 
+    except:
+       print(f"Some error occured for {url}")
 
     return data
