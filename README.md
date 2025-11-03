@@ -1,4 +1,5 @@
-# hi team
+# ItchScrape: BeautifulSoup-based scraper for itch.io games
 
-sample data is in the sample_jsons folder
-sample urls are in the sample_urls folder
+To see sample outputs:
+- Sample data outputs is in the sample_jsons folder
+- Sample url outputs are in the sample_urls folder
